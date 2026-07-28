@@ -1,6 +1,6 @@
 ---
 name: cobblemon-gateway
-description: "Linux 홈서버에 Cobblemon Fabric 서버를 구성하고, 친구 PC에는 Tailscale Device Sharing과 Java+Fabric+Cobblemon 클라이언트를 자동 설정한다. 친구를 호스트 tailnet 멤버로 초대하지 않고 공유 노드의 TCP 25565만 허용한다."
+description: "친구 PC를 코블몬 서버에 자동 연결. Tailscale Device Sharing + Fabric + Cobblemon 설치."
 ---
 
 # 🎫 코블몬 게이트웨이 — 포켓몬 세계로의 초대장
@@ -120,7 +120,7 @@ sudo chown -R cobblemon:cobblemon /srv/cobblemon
 공식 Fabric Installer로 서버를 설치한다:
 
 ```bash
-java -jar <FABRIC_INSTALLER> server -dir /srv/cobblemon -mcversion 1.21.1 -loader 0.16.0 -downloadMinecraft
+java -jar <FABRIC_INSTALLER> server -dir /srv/cobblemon -mcversion 1.21.1 -loader 0.17.2 -downloadMinecraft
 ```
 
 Modrinth API에서 Minecraft `1.21.1`, loader `fabric` 조건으로 Cobblemon과 `required` dependencies를 재귀적으로 해석해 `/srv/cobblemon/mods/`에 설치한다. 현재 필수 의존성에는 Fabric API가 포함된다. 각 jar의 크기와 API 응답 파일명을 검증한다.
@@ -190,6 +190,15 @@ Grants는 누적 적용된다. 기존 `src: ["*"]` 또는 다른 allow-all 규�
 Tailscale Machines 화면에서 **Cobblemon Linux 서버 노드 하나만** Share한다. 소규모 친구 그룹에는 사람마다 일회용 링크를 따로 발급한다. 공유 링크는 비밀번호처럼 취급하고 공개 채널이나 로그에 남기지 않는다. 사용되지 않은 링크는 30일 후 만료된다.
 
 친구는 호스트 tailnet 멤버가 되지 않고 자기 Tailscale 계정과 tailnet에 로그인한 상태로 공유를 수락한다. 공유를 수락하려면 친구가 자기 tailnet의 Owner, Admin 또는 IT admin이어야 하며, 개인 tailnet에서는 보통 본인이 Owner다. 공유된 노드는 친구 쪽 tailnet으로 연결을 먼저 시작할 수 없는 격리 상태로 유지된다.
+
+화이트리스트에 친구의 Minecraft 닉네임을 추가한다. H3에서 `white-list=true`를 설정했으므로 화이트리스트에 없는 플레이어는 접속이 거부된다:
+
+```bash
+# 서버 콘솔 (RCON 또는 서버 터미널)에서 실행
+whitelist add <friend_minecraft_username>
+```
+
+또는 `whitelist.json`에 직접 추가 후 `whitelist reload` 실행. 친구에게 Minecraft 닉네임을 미리 받아서 등록한다.
 
 생성된 Device Share 링크와 다음 주소를 친구에게 전달한다:
 
@@ -318,7 +327,7 @@ Java 21이 없으면 설치한다:
 
 ```bash
 curl -o <TEMP_DIR>/fabric-installer.jar https://maven.fabricmc.net/net/fabricmc/fabric-installer/1.0.1/fabric-installer-1.0.1.jar
-java -jar <TEMP_DIR>/fabric-installer.jar client -dir "<MC_DIR>" -mcversion 1.21.1 -loader 0.16.0
+java -jar <TEMP_DIR>/fabric-installer.jar client -dir "<MC_DIR>" -mcversion 1.21.1 -loader 0.17.2
 ```
 
 **S4 검증:**
@@ -459,5 +468,5 @@ Fabric 프로필 선택, Multiplayer 절차, 실제 서버 주소를 모두 전�
 | Minecraft | 1.21.1 |
 | Java | 21 |
 | Cobblemon | 1.7.3 |
-| Fabric Loader | 0.16.0+ |
+| Fabric Loader | 0.17.2+ |
 | Fabric API | 0.116.14+1.21.1 |
