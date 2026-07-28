@@ -1,0 +1,11 @@
+# 🎫 Cobblemon Gateway
+
+친구의 코딩 에이전트에게 전달하는 스킬. 읽기만 하면 Tailscale 가입부터 Cobblemon 클라이언트 설치까지 전부 자동화.
+
+## 사용법
+
+친구의 에이전트에게 `SKILL.md` 파일을 주고 실행시키세요.
+
+호스트가 제공해야 할 정보:
+- Tailscale 초대 링크 또는 auth key
+- 서버 주소 (100.x.x.x)
