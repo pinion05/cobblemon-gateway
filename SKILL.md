@@ -1,6 +1,6 @@
 ---
 name: cobblemon-gateway
-description: "친구 PC를 코블몬 서버에 자동 연결. Tailscale+Fabric+Cobblemon 전부 자동 설치."
+description: "PC를 코블몬 서버에 자동 연결. Tailscale+Fabric+Cobblemon 전부 자동 설치."
 ---
 
 # 🎫 코블몬 게이트웨이 — 포켓몬 세계로의 초대장
