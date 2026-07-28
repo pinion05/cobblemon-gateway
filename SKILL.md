@@ -254,12 +254,11 @@ with open(os.path.join(mc_dir, "mods", fab_name), "wb") as f:
 
 ## ⚠️ 에이전트 행동 가이드라인
 
-1. **GitHub 비밀번호 절대 직접 입력 금지** — OAuth 페이지 열되 로그인은 친구가 직접
-2. **모든 다운로드는 공식 소스만** — Modrinth CDN, fabricmc.net, tailscale.com
-3. **OS 먼저 감지** → 적절한 명령어 사용
-4. **Java 21 없으면 먼저 설치**
-5. **각 단계마다 검증** → 실패 시 다음 단계 진행 금지
-6. **컨셉 문구 유지** — 기술적 용어 최소화, 친절하게
+**모든 다운로드는 공식 소스만** — Modrinth CDN, fabricmc.net, tailscale.com
+**OS 먼저 감지** → 적절한 명령어 사용
+**Java 21 없으면 먼저 설치**
+**각 단계마다 검증** → 실패 시 다음 단계 진행 금지
+**컨셉 문구 유지** — 기술적 용어 최소화, 친절하게
 
 ---
 
