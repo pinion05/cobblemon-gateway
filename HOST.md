@@ -48,10 +48,15 @@ sudo mkdir -p /srv/cobblemon/mods
 sudo chown -R cobblemon:cobblemon /srv/cobblemon
 ```
 
-공식 Fabric Installer로 서버를 설치한다:
+Fabric Meta API에서 최신 stable Installer와 Loader를 동적 조회하여 서버를 설치한다:
 
 ```bash
-java -jar <FABRIC_INSTALLER> server -dir /srv/cobblemon -mcversion 1.21.1 -loader 0.17.2 -downloadMinecraft
+# 최신 stable installer와 1.21.1 호환 loader 조회
+INSTALLER_URL=$(curl -s https://meta.fabricmc.net/v2/versions/installer | python3 -c "import sys,json; print(json.load(sys.stdin)[0]['url'])")
+LOADER_VER=$(curl -s https://meta.fabricmc.net/v2/versions/loader/1.21.1 | python3 -c "import sys,json; print(json.load(sys.stdin)['loader']['version'])")
+
+curl -o /tmp/fabric-installer.jar "$INSTALLER_URL"
+java -jar /tmp/fabric-installer.jar server -dir /srv/cobblemon -mcversion 1.21.1 -loader "$LOADER_VER" -downloadMinecraft
 ```
 
 Modrinth API에서 Minecraft `1.21.1`, loader `fabric` 조건으로 Cobblemon과 `required` dependencies를 재귀적으로 해석해 `/srv/cobblemon/mods/`에 설치한다. 현재 필수 의존성에는 Fabric API가 포함된다. 각 jar의 크기와 API 응답 파일명을 검증한다.
@@ -150,12 +155,11 @@ SERVER_ADDRESS=<HOST_TAILSCALE_IPV4>:25565
 
 ---
 
-## 📎 버전 정보 (2026-07 기준)
+## 📎 고정 버전
 
 | 항목 | 버전 |
 |------|------|
 | Minecraft | 1.21.1 |
 | Java | 21 |
-| Cobblemon | 1.7.3 |
-| Fabric Loader | 0.17.2+ |
-| Fabric API | 0.116.14+1.21.1 |
+
+Cobblemon, Fabric Loader, Fabric API는 Modrinth/Fabric Meta API에서 동적 조회하여 최신 호환 버전을 사용한다.

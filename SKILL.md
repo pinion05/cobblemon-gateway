@@ -84,7 +84,12 @@ mc_dir = {
     "Windows": os.path.join(os.environ.get("APPDATA", ""), ".minecraft"),
     "Darwin": os.path.expanduser("~/Library/Application Support/minecraft"),
     "Linux": os.path.expanduser("~/.minecraft"),
-}[os_name]
+}.get(os_name)
+
+if mc_dir is None:
+    # 미지 OS (WSL, FreeBSD 등): 사용자에게 .minecraft 경로 직접 입력 요청
+    mc_dir = input(".minecraft 폴더 경로를 입력하세요: ").strip()
+    assert os.path.isdir(mc_dir), f"경로가 존재하지 않음: {mc_dir}"
 ```
 
 ### 백그라운드 실행 규칙
@@ -174,11 +179,25 @@ Java 21이 없으면 설치한다:
 - macOS: `brew install openjdk@21`
 - Linux: `sudo apt install openjdk-21-jre`
 
-공식 Fabric Maven에서 Installer를 다운로드하고 Minecraft 경로를 명시해 설치한다:
+Fabric Meta API에서 최신 stable Installer와 Loader 버전을 동적 조회한다:
+
+```python
+import urllib.request, json
+
+meta = "https://meta.fabricmc.net/v2/versions"
+# 최신 stable installer
+inst = json.loads(urllib.request.urlopen(f"{meta}/installer").read())[0]
+installer_url = inst["url"]  # maven URL
+# 1.21.1 호환 stable loader
+loader = json.loads(urllib.request.urlopen(f"{meta}/loader/1.21.1").read())["loader"]
+loader_version = loader["version"]
+```
+
+S4 검증을 먼저 실행하여 Fabric Loader 프로필이 이미 존재하면 설치를 건너뛴다. 없으면 다운로드 후 설치한다:
 
 ```bash
-curl -o <TEMP_DIR>/fabric-installer.jar https://maven.fabricmc.net/net/fabricmc/fabric-installer/1.0.1/fabric-installer-1.0.1.jar
-java -jar <TEMP_DIR>/fabric-installer.jar client -dir "<MC_DIR>" -mcversion 1.21.1 -loader 0.17.2
+curl -o <TEMP_DIR>/fabric-installer.jar <installer_url>
+java -jar <TEMP_DIR>/fabric-installer.jar client -dir "<MC_DIR>" -mcversion 1.21.1 -loader <loader_version>
 ```
 
 **S4 검증:**
@@ -203,15 +222,15 @@ S4-S6가 모두 PASS이면 `✨ 마인크래프트에 새 영혼이 깃들었다
 
 S1과 공유 링크가 준비되는 즉시 시작한다. S4-S6 완료를 기다리지 않는다.
 
-1. Tailscale이 로그인되지 않았으면 `tailscale up`으로 자기 계정에 로그인한다.
-2. GitHub OAuth가 열리면:
-   - 이미 로그인되어 있으면 승인 버튼을 누른다.
+1. `TAILSCALE_SHARE_URL`을 브라우저에서 열어 공유된 Cobblemon 서버 노드를 수락한다.
+2. Tailscale 로그인이 필요하면:
+   - `tailscale up`으로 자기 계정에 로그인한다.
+   - GitHub OAuth가 열리면 이미 로그인되어 있으면 승인 버튼을 누른다.
    - 로그인되어 있지 않으면 열린 브라우저에서 직접 로그인하도록 안내한다.
    - **에이전트는 비밀번호를 직접 입력하지 않는다.**
 3. 브라우저 제어가 불가능하면 `tailscale up --qr`을 사용한다.
-4. `TAILSCALE_SHARE_URL`을 열고 공유된 Cobblemon 서버 노드를 수락한다.
-5. 호스트 tailnet으로 전환하거나 가입하지 않는다.
-6. 호스트 auth key를 요청하거나 사용하지 않는다.
+4. 호스트 tailnet으로 전환하거나 가입하지 않는다.
+5. 호스트 auth key를 요청하거나 사용하지 않는다.
 
 **S2 검증:** 문자열 `Logged in as`에 의존하지 말고 구조화된 상태를 검사한다.
 
@@ -306,12 +325,11 @@ Fabric 프로필 선택, Multiplayer 절차, 실제 서버 주소를 모두 전�
 
 ---
 
-## 📎 버전 정보 (2026-07 기준)
+## 📎 고정 버전
 
 | 항목 | 버전 |
 |------|------|
 | Minecraft | 1.21.1 |
 | Java | 21 |
-| Cobblemon | 1.7.3 |
-| Fabric Loader | 0.17.2+ |
-| Fabric API | 0.116.14+1.21.1 |
+
+Cobblemon, Fabric Loader, Fabric API는 Modrinth/Fabric Meta API에서 동적 조회하여 최신 호환 버전을 사용한다.
