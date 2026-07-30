@@ -1,18 +1,18 @@
 ---
 name: cobblemon-gateway
-description: "친구 PC를 코블몬 서버에 자동 연결. Tailscale Device Sharing + Fabric + Cobblemon 설치."
+description: "새 플레이어 PC를 코블몬 서버에 자동 연결. Tailscale Device Sharing + Fabric + Cobblemon 설치."
 ---
 
 # 🎫 코블몬 게이트웨이 — 포켓몬 세계로의 초대장
 
 > **"너의 여정은 지금부터다."**
 
-목표: Linux 노트북을 안전한 Cobblemon 홈서버로 만들고 친구 PC의 접속 준비까지 자동화한다. 친구는 호스트 tailnet에 가입하지 않고 **공유된 서버 노드의 Minecraft 포트만** 사용한다.
+목표: Linux 노트북을 안전한 Cobblemon 홈서버로 만들고 새 플레이어 PC의 접속 준비까지 자동화한다. 플레이어는 호스트 tailnet에 가입하지 않고 **공유된 서버 노드의 Minecraft 포트만** 사용한다.
 
 ## 🔒 네트워크 불변 조건
 
-- 친구를 호스트 tailnet의 `Member`로 초대하지 않는다.
-- 호스트 auth key를 친구 PC에 전달하거나 사용하지 않는다.
+- 플레이어를 호스트 tailnet의 `Member`로 초대하지 않는다.
+- 호스트 auth key를 클라이언트 PC에 전달하거나 사용하지 않는다.
 - Tailscale **Device Sharing**으로 Cobblemon Linux 노드 하나만 공유한다.
 - 공유 사용자는 자기 Tailscale 계정과 tailnet을 유지한다.
 - 공유 노드의 `tcp:25565`만 허용하고 SSH, 관리 UI, 파일 공유 등 다른 서비스는 허용하지 않는다.
@@ -34,7 +34,7 @@ description: "친구 PC를 코블몬 서버에 자동 연결. Tailscale Device S
 | H5 | 공유 사용자는 TCP 25565만 접근 | Tailscale Grants 검토 및 공개 인터페이스 미노출 확인 |
 | H6 | 서버 노드 Device Share 링크 생성 | 공유 대상이 Linux 서버 한 대인지 확인 |
 
-**H1~H6 전부 PASS 후에만 친구에게 공유 링크를 전달한다.**
+**H1~H6 전부 PASS 후에만 플레이어에게 공유 링크를 전달한다.**
 
 ### 클라이언트 준비 기준
 
@@ -66,7 +66,7 @@ W0 시작
 
 ## ⚡ 강제 출력 규칙
 
-요청에서 역할을 판별한다. Linux 서버를 구성하려는 요청이면 **호스트 모드**, 친구 PC를 연결하려는 요청이면 **클라이언트 모드**로 실행한다.
+요청에서 역할을 판별한다. Linux 서버를 구성하려는 요청이면 **호스트 모드**, 클라이언트 PC를 연결하려는 요청이면 **클라이언트 모드**로 실행한다.
 
 **호스트 모드 로드 즉시 출력:**
 
@@ -187,20 +187,20 @@ Grants는 누적 적용된다. 기존 `src: ["*"]` 또는 다른 allow-all 규�
 
 ### H6: 서버 노드만 공유
 
-Tailscale Machines 화면에서 **Cobblemon Linux 서버 노드 하나만** Share한다. 소규모 친구 그룹에는 사람마다 일회용 링크를 따로 발급한다. 공유 링크는 비밀번호처럼 취급하고 공개 채널이나 로그에 남기지 않는다. 사용되지 않은 링크는 30일 후 만료된다.
+Tailscale Machines 화면에서 **Cobblemon Linux 서버 노드 하나만** Share한다. 소규모 초대 그룹에는 사람마다 일회용 링크를 따로 발급한다. 공유 링크는 비밀번호처럼 취급하고 공개 채널이나 로그에 남기지 않는다. 사용되지 않은 링크는 30일 후 만료된다.
 
-친구는 호스트 tailnet 멤버가 되지 않고 자기 Tailscale 계정과 tailnet에 로그인한 상태로 공유를 수락한다. 공유를 수락하려면 친구가 자기 tailnet의 Owner, Admin 또는 IT admin이어야 하며, 개인 tailnet에서는 보통 본인이 Owner다. 공유된 노드는 친구 쪽 tailnet으로 연결을 먼저 시작할 수 없는 격리 상태로 유지된다.
+플레이어는 호스트 tailnet 멤버가 되지 않고 자기 Tailscale 계정과 tailnet에 로그인한 상태로 공유를 수락한다. 공유를 수락하려면 플레이어가 자기 tailnet의 Owner, Admin 또는 IT admin이어야 하며, 개인 tailnet에서는 보통 본인이 Owner다. 공유된 노드는 플레이어 쪽 tailnet으로 연결을 먼저 시작할 수 없는 격리 상태로 유지된다.
 
-화이트리스트에 친구의 Minecraft 닉네임을 추가한다. H3에서 `white-list=true`를 설정했으므로 화이트리스트에 없는 플레이어는 접속이 거부된다:
+화이트리스트에 플레이어의 Minecraft 닉네임을 추가한다. H3에서 `white-list=true`를 설정했으므로 화이트리스트에 없는 플레이어는 접속이 거부된다:
 
 ```bash
 # 서버 콘솔 (RCON 또는 서버 터미널)에서 실행
 whitelist add <friend_minecraft_username>
 ```
 
-또는 `whitelist.json`에 직접 추가 후 `whitelist reload` 실행. 친구에게 Minecraft 닉네임을 미리 받아서 등록한다.
+또는 `whitelist.json`에 직접 추가 후 `whitelist reload` 실행. 플레이어에게 Minecraft 닉네임을 미리 받아서 등록한다.
 
-생성된 Device Share 링크와 다음 주소를 친구에게 전달한다:
+생성된 Device Share 링크와 다음 주소를 플레이어에게 전달한다:
 
 ```text
 TAILSCALE_SHARE_URL=<device-share-link>
@@ -449,9 +449,9 @@ Fabric 프로필 선택, Multiplayer 절차, 실제 서버 주소를 모두 전�
 ## ⚠️ 에이전트 행동 가이드라인
 
 - **공식 소스만 사용:** Modrinth CDN, fabricmc.net, tailscale.com
-- **Device Sharing만 사용:** 친구를 호스트 tailnet 멤버로 가입시키지 않음
+- **Device Sharing만 사용:** 플레이어를 호스트 tailnet 멤버로 가입시키지 않음
 - **최소 권한:** 공유 사용자는 서버 노드의 TCP 25565만 허용
-- **호스트 auth key 금지:** 친구 PC에서 절대 사용하지 않음
+- **호스트 auth key 금지:** 클라이언트 PC에서 절대 사용하지 않음
 - **설치 먼저, 질문은 그다음:** W1 시작 확인 후 필요한 정보만 질문
 - **의존성 기준으로 진행:** S 번호를 직렬 단계로 해석하지 않음
 - **독립 작업 계속:** 실패 시 의존 작업만 중단
